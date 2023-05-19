@@ -15,6 +15,8 @@ export default function ListItem({data, switchValue, onSwitchToggle }) {
                 <Text style={styles.text}>timestamp: {data.timestamp}</Text>
                 <Text>latitude: {data.coords.latitude}</Text>
                 <Text>longitude: {data.coords.longitude}</Text>
+                {/* <Text>id: {data.id}</Text> */}
+
 
             </View>
             <Switch value={switchValue} onValueChange={onSwitchToggle} />

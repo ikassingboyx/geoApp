@@ -29,7 +29,8 @@ export default function MapScreen({ route }) {
           }}
         >
           {data.map((el, index)=>{
-            return<Marker
+            if(el.switchValue == true){
+              return<Marker
               key={index}
               coordinate={{
                 latitude: el.coords.latitude,
@@ -39,10 +40,10 @@ export default function MapScreen({ route }) {
               title={"marker"}
               des={"descryption"}
             ></Marker>
+            }
+            
           })}
         </MapView>
-       
-      <Text>{JSON.stringify(data)}</Text>
     </View>
   )
 }

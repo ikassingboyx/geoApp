@@ -2,7 +2,10 @@ import { View, Text, Switch, StyleSheet, Alert, FlatList } from 'react-native'
 import { useEffect, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from "expo-location"; 
+import showAsyncStorageContentInDev from '@react-native-async-storage/async-storage'
 import React from 'react'
+import { ActivityIndicator } from 'react-native';
+
 import MyButton from './MyButton'
 import ListItem from './ListItem';
 
@@ -10,16 +13,24 @@ export default function List({ navigation }) {
     const [timestamps, setTimestapms] = useState([])
     const [masterSwitchValue, setMasterSwitchValue] = useState(false);
     const [stateId, setId] = useState(0);
+    const [active, setActive] = useState(false);
     const STORAGE_KEY = '@MyApp:timestamps';
     useEffect(() => {
-        Location.requestForegroundPermissionsAsync();
-        loadData();
+        (async()=>{
+          await loadData();
+          Location.requestForegroundPermissionsAsync();
+        })()
+       
       }, []);
     
       useEffect(() => {
-        saveData();
-        const data = timestamps
+        (async ()=>{
+          await saveData()
+          setActive(false)
+          setId(stateId+1)
+        })()  
       }, [timestamps]);
+
     useEffect(() => {
         const updatedData = timestamps.map((item) => ({ ...item, switchValue: masterSwitchValue }));
         setTimestapms(updatedData);
@@ -28,7 +39,7 @@ export default function List({ navigation }) {
         try {
           const storeData = await AsyncStorage.getItem(STORAGE_KEY);
           if (storeData) {
-            setTimestapms(JSON.parse(storeData));
+          setTimestapms(JSON.parse(storeData));
           }
         } catch (error) {
           console.log('Błąd podczas odczytu danych:', error);
@@ -56,6 +67,7 @@ export default function List({ navigation }) {
               text: 'Tak',
               onPress: async () => {
                 const updatedData = timestamps.filter((item) => !item.switchValue);
+                setId(updatedData.lenght)
                 setTimestapms(updatedData);
               },
             },
@@ -88,10 +100,11 @@ export default function List({ navigation }) {
               {
                 text: 'Tak',
                 onPress: async () => {
+                  setActive(true)
                     let pos = await Location.getCurrentPositionAsync({})
-                    setTimestapms(current => [...current, {...pos, switchValue: false,  id: stateId+1 }  ]);
-                    setId(stateId+1)
-                    storeData(timestamps)
+                    setTimestapms(current => [...current, {...pos, switchValue: false,  id: stateId }  ]);
+
+                   
                 },
               },
             ],
@@ -101,6 +114,7 @@ export default function List({ navigation }) {
 
     return (
         <View style={styles.container}>
+
             <View style={styles.content}>
             <View style={styles.con}>
                 <MyButton color={"#47aaff"} text={"POBIERZ I ZAPISZ POZYCJĘ"} pressFunction={addPosicion}></MyButton>
@@ -112,15 +126,18 @@ export default function List({ navigation }) {
                 <Switch value={masterSwitchValue} onValueChange={toggleMasterSwitch} />
             </View>
             <View style={styles.list}>
+          {active ? <ActivityIndicator size="large" color="#0000ff" /> :
+
                 <FlatList
                     data={timestamps}
                     renderItem={({ item }) => <ListItem switchValue={item.switchValue} onSwitchToggle={() => toggleItemSwitch(item.id)} data={item}></ListItem>}
                     keyExtractor={(item) => item.id.toString()}
                     >
                 </FlatList>
-
+              }
+ 
             </View>
-        </View>
+          </View>
         </View>
 
     )
