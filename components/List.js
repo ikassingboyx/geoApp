@@ -18,6 +18,7 @@ export default function List({ navigation }) {
     
       useEffect(() => {
         saveData();
+        const data = timestamps
       }, [timestamps]);
     useEffect(() => {
         const updatedData = timestamps.map((item) => ({ ...item, switchValue: masterSwitchValue }));
@@ -25,9 +26,9 @@ export default function List({ navigation }) {
       }, [masterSwitchValue]);
       const loadData = async () => {
         try {
-          const storedData = await AsyncStorage.getItem(STORAGE_KEY);
-          if (storedData) {
-            setTimestapms(JSON.parse(storedData));
+          const storeData = await AsyncStorage.getItem(STORAGE_KEY);
+          if (storeData) {
+            setTimestapms(JSON.parse(storeData));
           }
         } catch (error) {
           console.log('Błąd podczas odczytu danych:', error);
@@ -106,7 +107,8 @@ export default function List({ navigation }) {
                 <MyButton color={"#47aaff"} text={"USUŃ WSZYSTKIE POZYCJE"} pressFunction={deleteSelectedItems} ></MyButton>
             </View>
             <View style={styles.con}>
-                <MyButton color={"#47aaff"} text={"PRZEJDZ DO MAPY"} pressFunction={() => { navigation.navigate("Map") }}></MyButton>
+                <MyButton color={"#47aaff"} text={"PRZEJDZ DO MAPY"} pressFunction={() => { 
+                  navigation.navigate("MapScreen", timestamps) }}></MyButton>
                 <Switch value={masterSwitchValue} onValueChange={toggleMasterSwitch} />
             </View>
             <View style={styles.list}>
